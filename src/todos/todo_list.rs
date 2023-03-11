@@ -12,7 +12,7 @@ impl TodoList {
     pub fn list_todos(&self) {
         if !self.todos.is_empty() {
             for (i, todo) in self.todos.iter().enumerate() {
-                println!("id: {}", i);
+                println!("\nid: {}", i);
                 TodoItem::show_todo(todo);
             }
         } else {
@@ -21,7 +21,14 @@ impl TodoList {
     }
 
     pub fn add_todo(&mut self, todo_item: TodoItem) {
-        self.todos.push(todo_item);
+        match todo_item.urgent {
+            true => {
+                self.todos.insert(0, todo_item);
+            }
+            false => {
+                    self.todos.push(todo_item);
+                }
+        }
         println!("Todo saved.");
     }
 
@@ -35,5 +42,5 @@ impl TodoList {
 
     pub fn contains_todos(&self) -> bool {
         !self.todos.is_empty()
-    } 
+    }
 }

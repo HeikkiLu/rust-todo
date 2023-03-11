@@ -1,7 +1,7 @@
 pub struct TodoItem {
     pub(crate) title: String,
     done: bool,
-    urgent: bool,
+    pub(crate) urgent: bool,
 }
 
 impl TodoItem {
@@ -14,6 +14,6 @@ impl TodoItem {
     }
 
     pub fn show_todo(self: &Self) {
-        println!("Title: {}\nUrgent: {}\nDone: {}", self.title, self.urgent, self.done)
+        println!("\nTitle: {}\nUrgent: {}\nDone: {}\n", self.title, self.urgent, self.done)
     }
 }
