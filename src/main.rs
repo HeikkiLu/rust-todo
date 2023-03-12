@@ -2,7 +2,9 @@
 
 mod todos;
 mod utils;
-use todos::{add, contains_todos, init, list, remove};
+use todos::{
+    add, contains_todos, init, list_done_todos, list_undone_todos, mark_as_done, remove, show,
+};
 use utils::prompt_for_input;
 
 fn main() {
@@ -25,35 +27,77 @@ fn main() {
         println!(
             "
 
-(1) List todos
-(2) Add todo
-(3) Remove todo
-(4) Exit
+(1) Add todo
+(2) Mark todo as done
+(3) List undone todos
+(4) Show todo
+(5) Remove todo
+(6) Exit
 "
         );
 
-        let input_str = prompt_for_input(String::from("> ")).trim_end().to_owned();
+        let input_str = prompt_for_input("> ").trim_end().to_owned();
 
         let input_num = input_str.parse::<u8>();
 
         match input_num {
             Ok(num) => match num {
-                4 => {
+                6 => {
                     println!("Exiting...");
                     break;
                 }
-                1 => list(&todo_list),
+                3 => list_undone_todos(&todo_list),
+                4 => {
+                    if contains_todos(&todo_list) {
+                        println!("Undone tasks:");
+                        list_undone_todos(&todo_list);
+                        println!("Done tasks:");
+                        list_done_todos(&todo_list);
+                        println!("");
+                        let todo_idx_str = prompt_for_input("What todo to show?");
+                        let todo_idx_num = todo_idx_str.trim_end().parse::<usize>();
+                        match todo_idx_num {
+                            Ok(idx) => {
+                                show(&mut todo_list, idx);
+                            }
+                            Err(_) => println!("Invalid input. Please enter a number."),
+                        }
+                    } else {
+                        println!("No todos saved.");
+                    }
+                }
                 2 => {
-                    let title = prompt_for_input(String::from("What do you want to do?"));
-                    let urgent =
-                        prompt_for_input(String::from("Should the item marked as urgent? (y/n)"));
+                    if contains_todos(&todo_list) {
+                        list_undone_todos(&todo_list);
+                        let todo_idx_str = prompt_for_input("What task have you completed?");
+                        let todo_idx_num = todo_idx_str.trim_end().parse::<usize>();
+                        match todo_idx_num {
+                            Ok(idx) => {
+                                show(&mut todo_list, idx);
+                                let is_done = prompt_for_input("Mark as done? (y/n)");
+                                if is_done.trim_end().eq_ignore_ascii_case("y") {
+                                    mark_as_done(&mut todo_list, idx)
+                                }
+                            }
+                            Err(_) => println!("Invalid input. Please enter a number."),
+                        }
+                    } else {
+                        println!("No todos saved.");
+                    }
+                }
+                1 => {
+                    let title = prompt_for_input("What do you want to do?");
+                    let urgent = prompt_for_input("Should the item marked as urgent? (y/n)");
                     let is_urgent = urgent.trim_end().eq_ignore_ascii_case("y");
                     add(title.trim_end().to_owned(), is_urgent, &mut todo_list)
                 }
-                3 => {
+                5 => {
                     if contains_todos(&todo_list) {
-                        list(&todo_list);
-                        let todo_idx_str = prompt_for_input(String::from("What todo to remove?"));
+                        println!("Undone tasks:");
+                        list_undone_todos(&todo_list);
+                        println!("Done tasks:");
+                        list_done_todos(&todo_list);
+                        let todo_idx_str = prompt_for_input("What todo to remove?");
                         let todo_idx_num = todo_idx_str.trim_end().parse::<usize>();
                         match todo_idx_num {
                             Ok(idx) => remove(&mut todo_list, idx),

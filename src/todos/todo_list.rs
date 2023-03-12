@@ -1,7 +1,9 @@
+use crate::todos::todo_item::Urgent;
+use crate::todos::todo_item::Status;
 use crate::todos::TodoItem;
 
 pub struct TodoList {
-    todos: Vec<TodoItem>,
+    pub(crate) todos: Vec<TodoItem>,
 }
 
 impl TodoList {
@@ -9,27 +11,57 @@ impl TodoList {
         TodoList { todos: vec![] }
     }
 
-    pub fn list_todos(&self) {
+    pub fn list_undone_todos(&self) {
         if !self.todos.is_empty() {
             for (i, todo) in self.todos.iter().enumerate() {
-                println!("\nid: {}", i);
-                TodoItem::show_todo(todo);
+                match todo.status {
+                    Status::NOTDONE => println!("{}: {}", i, todo.title),
+                    Status::DONE => print!("")
+                }
             }
         } else {
             println!("No todos saved.");
         }
     }
 
-    pub fn add_todo(&mut self, todo_item: TodoItem) {
-        match todo_item.urgent {
+    pub fn list_done_todos(&self) {
+        if !self.todos.is_empty() {
+            for (i, todo) in self.todos.iter().enumerate() {
+                match todo.status {
+                    Status::NOTDONE => print!(""),
+                    Status::DONE => println!("{}: {}", i, todo.title)
+                }
+            }
+        } else {
+            println!("No todos saved.");
+        }
+    }
+
+    pub fn show_todo(&self, todo_idx: usize) {
+        if self.todos.len() <= todo_idx {
+            println!("Todo index out of bounds.");
+            return;
+        }
+        if !self.todos.is_empty() {
+            TodoItem::show_todo(&self.todos[todo_idx]);
+        } else {
+            println!("No todos saved.");
+        }
+    }
+
+    pub fn add_todo(&mut self, title: String, urgent: bool) {
+        match urgent {
             true => {
-                self.todos.insert(0, todo_item);
+                let todo = TodoItem::new(title, Urgent::URGENT);
+                self.todos.insert(0, todo);
+                println!("Todo saved.");
             }
             false => {
-                    self.todos.push(todo_item);
-                }
+                let todo = TodoItem::new(title, Urgent::NOTURGENT);
+                self.todos.push(todo);
+                println!("Todo saved.");
+            }
         }
-        println!("Todo saved.");
     }
 
     pub fn remove_todo(&mut self, todo_idx: usize) {
